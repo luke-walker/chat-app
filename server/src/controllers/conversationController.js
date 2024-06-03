@@ -2,8 +2,39 @@ import conversationModel from "../models/conversationModel.js"
 
 export async function getConversations(req, res) {
     try {
-        const conversations = await conversationModel.find({users: req.session.user._id});
+        const conversations = await conversationModel.find({users: req.session.user.email}) || [];
         return res.status(200).json(conversations);
+    } catch (err) {
+        return res.sendStatus(500);
+    }
+}
+
+export async function createConversation(req, res) {
+    try {
+        const name = req.body.name;
+        const users = [req.session.user.email, ...req.body.users];
+        const conversation = {
+            name,
+            users,
+            messages: []
+        }
+
+        return res.status(200).json(await conversationModel.create(conversation));
+    } catch (err) {
+        return res.sendStatus(500);
+    }
+}
+
+export async function getConversation(req, res) {
+    try {
+        const id = req.params.id;
+        const conversation = await conversationModel.find({_id: id});
+
+        if (!(conversation.users.includes(req.session.user._id))) {
+            return res.sendStatus(401);
+        }
+
+        return res.status(200).json(conversation);
     } catch (err) {
         return res.sendStatus(500);
     }
