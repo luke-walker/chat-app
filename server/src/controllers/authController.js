@@ -33,13 +33,16 @@ export async function callbackGoogleOAuth(req, res) {
         const { id_token } = await tokenResponse.json();
         const userInfo = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${id_token}`);
         const userData = await userInfo.json();
-        
-        if (Object.keys(await userModel.find({email: userData.email})).length === 0) {
+        const foundData = await userModel.find({email: userData.email});
+
+        if (Object.keys(foundData).length === 0) {
             req.session.user = await userModel.create({
                 email: userData.email,
                 name: userData.name,
                 pfp: userData.picture
             });
+        } else {
+            req.session.user = foundData;
         }
 
         return res.redirect(process.env.FRONTEND_URL);

@@ -4,7 +4,7 @@ import authorizeUser from "../middleware/authorizeUser.js"
 
 const router = express.Router();
 
-router.get("/", authorizeUser, (_, res) => res.sendStatus(200));
+router.get("/", [authorizeUser], (_, res) => res.sendStatus(200));
 router.get("/google", loginGoogleOAuth);
 router.get("/google/callback", callbackGoogleOAuth);
 
