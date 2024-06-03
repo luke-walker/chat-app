@@ -1,3 +1,4 @@
+import Conversations from "./Conversations"
 import { useEffect, useState } from "react"
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
             {auth ?
                 <div>
                     <button className="logout-button" onClick={handleLogoutClick}>Logout</button>
+                    <Conversations />
                 </div>
             :
                 <div className="login-container">
