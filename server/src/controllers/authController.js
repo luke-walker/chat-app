@@ -42,7 +42,7 @@ export async function callbackGoogleOAuth(req, res) {
                 pfp: userData.picture
             });
         } else {
-            req.session.user = foundData;
+            req.session.user = foundData[0];
         }
 
         return res.redirect(process.env.FRONTEND_URL);
