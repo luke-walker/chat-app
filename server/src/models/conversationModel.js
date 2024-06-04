@@ -11,7 +11,7 @@ export default mongoose.model("Conversation", new mongoose.Schema({
     },
     messages: [
         {
-            authorId: {
+            author: {
                 type: String,
                 required: true
             },

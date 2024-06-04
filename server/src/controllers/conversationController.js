@@ -1,4 +1,5 @@
 import conversationModel from "../models/conversationModel.js"
+import mongoose from "mongoose";
 
 export async function getConversations(req, res) {
     try {
@@ -27,8 +28,8 @@ export async function createConversation(req, res) {
 
 export async function getConversation(req, res) {
     try {
-        const id = req.params.id;
-        const conversation = await conversationModel.find({_id: id});
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const conversation = await conversationModel.findById(id);
 
         if (!(conversation.users.includes(req.session.user._id))) {
             return res.sendStatus(401);
@@ -42,17 +43,17 @@ export async function getConversation(req, res) {
 
 export async function sendMessage(req, res) {
     try {
-        const id = req.params.id;
-        const conversation = await conversationModel.find({_id: id});
-        
-        if (!(conversation.users.includes(req.session.user._id))) {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const conversation = await conversationModel.findById(id);
+
+        if (!(conversation.users.includes(req.session.user.email))) {
             return res.sendStatus(401);
         }
         
-        await conversationModel.updateOne({_id: id}, {
+        await conversationModel.findByIdAndUpdate(id, {
             $push: {
                 messages: {
-                    authorId: req.session.user._id,
+                    author: req.session.user.name,
                     content: req.body.content,
                     timestamp: new Date()
                 }
@@ -61,6 +62,7 @@ export async function sendMessage(req, res) {
 
         return res.sendStatus(200);
     } catch (err) {
+        console.log(err);
         return res.sendStatus(500);
     }
 }
