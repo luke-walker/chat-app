@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { io } from "socket.io-client"
 
+import "./Conversations.css"
+
 export default function Conversations() {
     const [convs, setConvs] = useState([]);
     const [curConv, setCurConv] = useState(null);
@@ -12,9 +14,8 @@ export default function Conversations() {
             withCredentials: true
         });
 
-        socket.on("updateConvs", updateConvs);
-
         updateConvs();
+        socket.on("updateConvs", updateConvs);
 
         return () => {
             socket.removeAllListeners();
@@ -30,6 +31,8 @@ export default function Conversations() {
     }, [convs]);
 
     useEffect(() => {
+        const messagesDiv = document.getElementsByClassName("current-messages")[0];
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
         setMessage("");
     }, [curConv]);
 
@@ -97,10 +100,8 @@ export default function Conversations() {
 
     return (
         <div className="conversations">
-            <div className="create-conversation">
-                <button onClick={handleCreateClick}>Create Conversation</button>
-            </div>
             <div className="conversation-list">
+                <button onClick={handleCreateClick}>Create Conversation</button>
                 {convs.length > 0 && convs.map((conv, index) =>
                     <div className="conversation" onClick={handleConversationClick(index)} key={index}>
                         {conv.name}
@@ -108,11 +109,13 @@ export default function Conversations() {
                 )}
             </div>
             <div className="current-conversation">
-                {curConv && curConv.messages.map((msg) => 
-                    <div className="conversation-message" key={msg._id}>
-                        <p>{msg.author}: {msg.content}</p>
-                    </div>
-                )}
+                <div className="current-messages">
+                    {curConv && curConv.messages.map((msg) => 
+                        <div className="conversation-message" key={msg._id}>
+                            <p>{msg.author}: {msg.content}</p>
+                        </div>
+                    )}
+                </div>
                 <input type="text" onChange={handleMessageChange} onKeyDown={handleMessageEnter} value={message} placeholder="Enter message..." />
                 <button onClick={sendMessage}>Send</button>
             </div>

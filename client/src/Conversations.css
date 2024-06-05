@@ -1,0 +1,16 @@
+.conversations {
+    display: flex;
+}
+
+.conversation-list {
+    padding: 0px 25px 0px 50px;
+}
+
+.conversation {
+    padding-top: 10px;
+}
+
+.current-messages {
+    height: 80vh;
+    overflow-y: auto;
+}

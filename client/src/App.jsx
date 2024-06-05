@@ -1,8 +1,15 @@
 import Conversations from "./Conversations"
 import { useEffect, useState } from "react"
 
+import "./App.css"
+
 export default function App() {
     const [auth, setAuth] = useState(false);
+
+    async function logout() {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/logout`, { credentials: "include" });
+        setAuth(!res.ok);
+    }
 
     useEffect(() => {
         async function authorizeUser() {
@@ -17,14 +24,13 @@ export default function App() {
     }
 
     async function handleLogoutClick() {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/logout`, { credentials: "include" });
-        setAuth(!res.ok);
+        await logout();
     }
 
     return (
         <div className="app">
             {auth ?
-                <div>
+                <div className="content-container">
                     <button className="logout-button" onClick={handleLogoutClick}>Logout</button>
                     <Conversations />
                 </div>

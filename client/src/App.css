@@ -1,0 +1,8 @@
+.content-container {
+    display: flex;
+    justify-content: center;
+}
+
+.logout-button {
+    height: 100%;
+}
