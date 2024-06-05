@@ -1,10 +1,13 @@
 import conversationModel from "../models/conversationModel.js"
+import { getConversationsByEmail } from "../utils/conversationUtil.js"
 import mongoose from "mongoose";
+
+import { io } from "../server.js"
 
 export async function getConversations(req, res) {
     try {
-        const conversations = await conversationModel.find({users: req.session.user.email}) || [];
-        return res.status(200).json(conversations);
+        const convs = await getConversationsByEmail(req.session.user.email);
+        return res.status(200).json(convs);
     } catch (err) {
         return res.sendStatus(500);
     }
@@ -59,6 +62,8 @@ export async function sendMessage(req, res) {
                 }
             }
         });
+
+        io.to(id.toString()).emit("updateConvs");
 
         return res.sendStatus(200);
     } catch (err) {

@@ -1,16 +1,30 @@
 import { useEffect, useState } from "react"
+import { io } from "socket.io-client"
 
 export default function Conversations() {
     const [convs, setConvs] = useState([]);
     const [curConv, setCurConv] = useState(null);
+    const [curConvIndex, setCurConvIndex] = useState(-1);
     const [message, setMessage] = useState("");
 
     useEffect(() => {
+        const socket = io(import.meta.env.VITE_BACKEND_URL, {
+            withCredentials: true
+        });
+
+        socket.on("updateConvs", updateConvs);
+
         updateConvs();
+
+        return () => {
+            socket.removeAllListeners();
+        };
     }, []);
 
     useEffect(() => {
-        if (!curConv && convs.length > 0) {
+        if (curConvIndex >= 0) {
+            setCurConv(convs[curConvIndex]);
+        } else if (convs.length > 0) {
             setCurConv(convs[0]);
         }
     }, [convs]);
@@ -18,6 +32,10 @@ export default function Conversations() {
     useEffect(() => {
         setMessage("");
     }, [curConv]);
+
+    useEffect(() => {
+        setCurConv(convs[curConvIndex]);
+    }, [curConvIndex]);
 
     function updateConvs() {
         fetch(`${import.meta.env.VITE_BACKEND_URL}/conv`, { credentials: "include" })
@@ -42,14 +60,10 @@ export default function Conversations() {
         }).then((res) => res.json()).then((data) => convs.push(data));
     }
 
-    function handleConversationClick(id) {
+    function handleConversationClick(index) {
         return function() {
-            for (const conv of convs) {
-                if (conv._id === id) {
-                    setCurConv(conv);
-                    break;
-                }
-            }
+            setCurConvIndex(index);
+            setCurConv(convs[index])
         }
     }
 
@@ -87,8 +101,8 @@ export default function Conversations() {
                 <button onClick={handleCreateClick}>Create Conversation</button>
             </div>
             <div className="conversation-list">
-                {convs.length > 0 && convs.map((conv) =>
-                    <div className="conversation" onClick={handleConversationClick(conv._id)} key={conv._id}>
+                {convs.length > 0 && convs.map((conv, index) =>
+                    <div className="conversation" onClick={handleConversationClick(index)} key={index}>
                         {conv.name}
                     </div>
                 )}
