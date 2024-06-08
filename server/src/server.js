@@ -80,6 +80,7 @@ io.on("connection", async (socket) => {
     const convs = await getConversationsByEmail(email);
 
     for (const conv of convs) {
+        socket.join(email);
         socket.join(conv._id.toString());
     }
 });

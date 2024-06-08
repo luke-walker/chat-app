@@ -17,13 +17,19 @@ export async function createConversation(req, res) {
     try {
         const name = req.body.name;
         const users = [req.session.user.email, ...req.body.users];
-        const conversation = {
+        const conv = {
             name,
             users,
             messages: []
         }
 
-        return res.status(200).json(await conversationModel.create(conversation));
+        await conversationModel.create(conv);
+
+        for (const user of users) {
+            io.to(user).emit("updateConvs");
+        }
+
+        return res.sendStatus(200);
     } catch (err) {
         return res.sendStatus(500);
     }
@@ -34,7 +40,7 @@ export async function getConversation(req, res) {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const conversation = await conversationModel.findById(id);
 
-        if (!(conversation.users.includes(req.session.user._id))) {
+        if (!conversation.users.includes(req.session.user._id)) {
             return res.sendStatus(401);
         }
 
@@ -49,7 +55,7 @@ export async function sendMessage(req, res) {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const conversation = await conversationModel.findById(id);
 
-        if (!(conversation.users.includes(req.session.user.email))) {
+        if (!conversation.users.includes(req.session.user.email)) {
             return res.sendStatus(401);
         }
         
@@ -67,7 +73,6 @@ export async function sendMessage(req, res) {
 
         return res.sendStatus(200);
     } catch (err) {
-        console.log(err);
         return res.sendStatus(500);
     }
 }
