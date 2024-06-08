@@ -5,7 +5,6 @@ import { rateLimit } from "express-rate-limit"
 import session from "express-session"
 import http from "http"
 import mongoose from "mongoose"
-import { createServer } from "node:http"
 import { Server } from "socket.io"
 
 import authRouter from "./routes/authRoute.js"
@@ -81,6 +80,10 @@ io.on("connection", async (socket) => {
     const convIds = convs.map((conv) => conv._id.toString());
 
     socket.join([email, ...convIds]);
+
+    socket.on("leaveRoom", (room) => {
+        socket.leave(room);
+    });
 });
 
 httpServer.listen(process.env.SERVER_PORT, (err) => {

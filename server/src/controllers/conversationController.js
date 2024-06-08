@@ -49,6 +49,7 @@ export async function leaveConversation(req, res) {
             await conversationModel.findByIdAndDelete(id);
         }
 
+        io.to(email).emit("leaveRoom", id.toString());
         io.to(email).to(id.toString()).emit("updateConvs");
 
         return res.sendStatus(200);
