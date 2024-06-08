@@ -2,6 +2,7 @@ import dateFormat from "dateformat"
 import { useEffect, useState } from "react"
 import { io } from "socket.io-client"
 
+import { createConversationPrompt } from "./utils/conversationUtil"
 import "./Conversations.css"
 
 export default function Conversations() {
@@ -48,8 +49,11 @@ export default function Conversations() {
     }
 
     function handleCreateClick() {
-        const name = prompt("Enter conversation name:");
-        const users = prompt("Enter emails of users (comma separated):").split(",");
+        const [name, users] = createConversationPrompt();
+        
+        if (name === null || users === null) {
+            return;
+        }
         
         fetch(`${import.meta.env.VITE_BACKEND_URL}/conv/create`, {
             method: "POST",
@@ -105,12 +109,16 @@ export default function Conversations() {
         <div className="conversations">
             <div className="conversation-list">
                 <button className="conversation-create-btn" onClick={handleCreateClick}>Create Conversation</button>
-                {convs.length > 0 && convs.map((conv, index) =>
-                    <div className="conversation" onClick={handleConversationClick(index)} key={index}>
-                        <p>{conv.name}</p>
-                    </div>
-                )}
-                <button className="conversation-leave-btn" onClick={handleLeaveClick}>Leave Conversation</button>
+                {convs.length > 0 &&
+                    <>
+                    {convs.map((conv, index) =>
+                        <div className="conversation" onClick={handleConversationClick(index)} key={conv._id}>
+                            <p>{conv.name}</p>
+                        </div>
+                    )}
+                    <button className="conversation-leave-btn" onClick={handleLeaveClick}>Leave Conversation</button>
+                    </>
+                }
             </div>
             <div className="current-conversation">
                 <div className="current-messages">
