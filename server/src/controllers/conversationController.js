@@ -49,7 +49,7 @@ export async function leaveConversation(req, res) {
             await conversationModel.findByIdAndDelete(id);
         }
 
-        io.to(id.toString()).emit("updateConvs");
+        io.to(email).to(id.toString()).emit("updateConvs");
 
         return res.sendStatus(200);
     } catch (err) {
