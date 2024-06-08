@@ -106,13 +106,11 @@ export default function Conversations() {
             <div className="conversation-list">
                 <button className="conversation-create-btn" onClick={handleCreateClick}>Create Conversation</button>
                 {convs.length > 0 && convs.map((conv, index) =>
-                    <>
                     <div className="conversation" onClick={handleConversationClick(index)} key={index}>
                         <p>{conv.name}</p>
                     </div>
-                    <button className="conversation-leave-btn" onClick={handleLeaveClick}>Leave Conversation</button>
-                    </>
                 )}
+                <button className="conversation-leave-btn" onClick={handleLeaveClick}>Leave Conversation</button>
             </div>
             <div className="current-conversation">
                 <div className="current-messages">
