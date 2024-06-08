@@ -1,3 +1,4 @@
+import dateFormat from "dateformat"
 import { useEffect, useState } from "react"
 import { io } from "socket.io-client"
 
@@ -26,7 +27,7 @@ export default function Conversations() {
         if (curConvIndex >= 0) {
             setCurConv(convs[curConvIndex]);
         } else if (convs.length > 0) {
-            setCurConv(convs[0]);
+            setCurConvIndex(0);
         }
     }, [convs]);
 
@@ -56,17 +57,14 @@ export default function Conversations() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                name,
-                users
-            })
+            body: JSON.stringify({ name, users })
         }).then((res) => res.json()).then((data) => convs.push(data));
     }
 
     function handleConversationClick(index) {
         return function() {
             setCurConvIndex(index);
-            setCurConv(convs[index])
+            setCurConv(convs[index]);
         }
     }
 
@@ -87,9 +85,7 @@ export default function Conversations() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                content: message
-            })
+            body: JSON.stringify({ content: message })
         }).then((res) => {
             if (res.ok) {
                 updateConvs();
@@ -101,10 +97,10 @@ export default function Conversations() {
     return (
         <div className="conversations">
             <div className="conversation-list">
-                <button onClick={handleCreateClick}>Create Conversation</button>
+                <button class="conversation-create-btn" onClick={handleCreateClick}>Create Conversation</button>
                 {convs.length > 0 && convs.map((conv, index) =>
                     <div className="conversation" onClick={handleConversationClick(index)} key={index}>
-                        {conv.name}
+                        <p>{conv.name}</p>
                     </div>
                 )}
             </div>
@@ -112,12 +108,14 @@ export default function Conversations() {
                 <div className="current-messages">
                     {curConv && curConv.messages.map((msg) => 
                         <div className="conversation-message" key={msg._id}>
-                            <p>{msg.author}: {msg.content}</p>
+                            <p>({dateFormat(msg.timestamp, "h:MM TT, m/d/yy")}) {msg.author}: {msg.content}</p>
                         </div>
                     )}
                 </div>
-                <input type="text" onChange={handleMessageChange} onKeyDown={handleMessageEnter} value={message} placeholder="Enter message..." />
-                <button onClick={sendMessage}>Send</button>
+                <div className="conversation-input">
+                    <textarea type="text" rows="3" onChange={handleMessageChange} onKeyDown={handleMessageEnter} value={message} placeholder="Enter message..." />
+                    <button onClick={sendMessage}>Send</button>
+                </div>
             </div>
         </div>
     );

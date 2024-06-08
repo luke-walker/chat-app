@@ -1,16 +1,59 @@
 .conversations {
     display: flex;
+    margin-top: 20px;
 }
 
 .conversation-list {
-    padding: 0px 25px 0px 50px;
+    background-color: #333;
+    text-align: center;
+}
+
+.conversation-create-btn {
+    width: 100%;
 }
 
 .conversation {
-    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #555;
+}
+
+.conversation:hover {
+    background-color: #444;
+    cursor: pointer;
+}
+
+.current-conversation {
+    width: 85vw;
+    margin-left: 10px;
+    padding: 10px;
+    background-color: #777;
 }
 
 .current-messages {
     height: 80vh;
     overflow-y: auto;
+    word-wrap: break-word;
+    margin-bottom: 10px;
+}
+
+.conversation-input {
+    text-align: center;
+}
+
+.conversation-input textarea {
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+    margin-bottom: 10px;
+    border: none;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.conversation-input button {
+    width: 7%;
 }

@@ -30,10 +30,12 @@ export default function App() {
     return (
         <div className="app">
             {auth ?
+                <>
+                <button className="logout-button" onClick={handleLogoutClick}>Logout</button>
                 <div className="content-container">
-                    <button className="logout-button" onClick={handleLogoutClick}>Logout</button>
                     <Conversations />
                 </div>
+                </>
             :
                 <div className="login-container">
                     <button className="login-button" onClick={handleLoginClick}>Login with Google</button>
