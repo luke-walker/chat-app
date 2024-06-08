@@ -78,11 +78,9 @@ io.on("connection", async (socket) => {
 
     const email = socket.request.session.user.email;
     const convs = await getConversationsByEmail(email);
+    const convIds = convs.map((conv) => conv._id.toString());
 
-    for (const conv of convs) {
-        socket.join(email);
-        socket.join(conv._id.toString());
-    }
+    socket.join([email, ...convIds]);
 });
 
 httpServer.listen(process.env.SERVER_PORT, (err) => {
