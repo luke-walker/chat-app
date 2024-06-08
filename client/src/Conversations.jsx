@@ -108,7 +108,7 @@ export default function Conversations() {
                 <div className="current-messages">
                     {curConv && curConv.messages.map((msg) => 
                         <div className="conversation-message" key={msg._id}>
-                            <p>({dateFormat(msg.timestamp, "h:MM TT, m/d/yy")}) {msg.author}: {msg.content}</p>
+                            <p>({dateFormat(msg.timestamp, "hh:MM TT, mm/dd/yy")}) {msg.author}: {msg.content}</p>
                         </div>
                     )}
                 </div>
