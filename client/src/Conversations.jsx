@@ -11,9 +11,7 @@ export default function Conversations() {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        const socket = io(import.meta.env.VITE_BACKEND_URL, {
-            withCredentials: true
-        });
+        const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true });
 
         updateConvs();
         socket.on("updateConvs", updateConvs);
@@ -38,7 +36,9 @@ export default function Conversations() {
     }, [curConv]);
 
     useEffect(() => {
-        setCurConv(convs[curConvIndex]);
+        if (curConvIndex >= 0 && curConvIndex < convs.length) {
+            setCurConv(convs[curConvIndex]);
+        }
     }, [curConvIndex]);
 
     function updateConvs() {
@@ -51,14 +51,21 @@ export default function Conversations() {
         const name = prompt("Enter conversation name:");
         const users = prompt("Enter emails of users (comma separated):").split(",");
         
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/conv`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/conv/create`, {
             method: "POST",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ name, users })
-        }).then((res) => res.json()).then((data) => convs.push(data));
+        });
+    }
+
+    async function handleLeaveClick() {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/conv/leave/${curConv._id.toString()}`, {
+            method: "POST",
+            credentials: "include"
+        });
     }
 
     function handleConversationClick(index) {
@@ -97,25 +104,30 @@ export default function Conversations() {
     return (
         <div className="conversations">
             <div className="conversation-list">
-                <button class="conversation-create-btn" onClick={handleCreateClick}>Create Conversation</button>
+                <button className="conversation-create-btn" onClick={handleCreateClick}>Create Conversation</button>
                 {convs.length > 0 && convs.map((conv, index) =>
+                    <>
                     <div className="conversation" onClick={handleConversationClick(index)} key={index}>
                         <p>{conv.name}</p>
                     </div>
+                    <button className="conversation-leave-btn" onClick={handleLeaveClick}>Leave Conversation</button>
+                    </>
                 )}
             </div>
             <div className="current-conversation">
                 <div className="current-messages">
                     {curConv && curConv.messages.map((msg) => 
                         <div className="conversation-message" key={msg._id}>
-                            <p>({dateFormat(msg.timestamp, "hh:MM TT, mm/dd/yy")}) {msg.author}: {msg.content}</p>
+                            <p>({dateFormat(msg.timestamp, "hh:MM TT, mm/dd/yy")}) {msg.authorName}: {msg.content}</p>
                         </div>
                     )}
                 </div>
-                <div className="conversation-input">
-                    <textarea type="text" rows="3" onChange={handleMessageChange} onKeyDown={handleMessageEnter} value={message} placeholder="Enter message..." />
-                    <button onClick={sendMessage}>Send</button>
-                </div>
+                {curConvIndex >= 0 &&
+                    <div className="conversation-input">
+                        <textarea type="text" rows="3" onChange={handleMessageChange} onKeyDown={handleMessageEnter} value={message} placeholder="Enter message..." />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
+                }
             </div>
         </div>
     );

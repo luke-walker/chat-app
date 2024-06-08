@@ -21,7 +21,7 @@ export async function createConversation(req, res) {
             name,
             users,
             messages: []
-        }
+        };
 
         await conversationModel.create(conv);
 
@@ -35,16 +35,38 @@ export async function createConversation(req, res) {
     }
 }
 
+export async function leaveConversation(req, res) {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const email = req.session.user.email;
+        const conv = await conversationModel.findByIdAndUpdate(id, {
+            $pull: {
+                users: email
+            }
+        });
+
+        if (conv.users.length === 0 || (conv.users.length === 1 && conv.users[0] === email)) {
+            await conversationModel.findByIdAndDelete(id);
+        }
+
+        io.to(id.toString()).emit("updateConvs");
+
+        return res.sendStatus(200);
+    } catch (err) {
+        return res.sendStatus(500);
+    }
+}
+
 export async function getConversation(req, res) {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
-        const conversation = await conversationModel.findById(id);
+        const conv = await conversationModel.findById(id);
 
-        if (!conversation.users.includes(req.session.user._id)) {
+        if (!conv.users.includes(req.session.user._id)) {
             return res.sendStatus(401);
         }
 
-        return res.status(200).json(conversation);
+        return res.status(200).json(conv);
     } catch (err) {
         return res.sendStatus(500);
     }
@@ -53,16 +75,17 @@ export async function getConversation(req, res) {
 export async function sendMessage(req, res) {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
-        const conversation = await conversationModel.findById(id);
+        const conv = await conversationModel.findById(id);
 
-        if (!conversation.users.includes(req.session.user.email)) {
+        if (!conv.users.includes(req.session.user.email)) {
             return res.sendStatus(401);
         }
         
         await conversationModel.findByIdAndUpdate(id, {
             $push: {
                 messages: {
-                    author: req.session.user.name,
+                    authorName: req.session.user.name,
+                    authorEmail: req.session.user.email,
                     content: req.body.content,
                     timestamp: new Date()
                 }

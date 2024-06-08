@@ -11,7 +11,11 @@ export default mongoose.model("Conversation", new mongoose.Schema({
     },
     messages: [
         {
-            author: {
+            authorName: {
+                type: String,
+                required: true
+            },
+            authorEmail: {
                 type: String,
                 required: true
             },

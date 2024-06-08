@@ -12,6 +12,11 @@
     width: 100%;
 }
 
+.conversation-leave-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
 .conversation {
     display: flex;
     justify-content: center;
