@@ -3,12 +3,14 @@ import { useEffect, useState } from "react"
 import { io } from "socket.io-client"
 
 import { createConversationPrompt } from "./utils/conversationUtil"
+import { retrieveUserByEmail } from "./utils/userUtil"
 import "./Conversations.css"
 
 export default function Conversations() {
     const [convs, setConvs] = useState([]);
     const [curConv, setCurConv] = useState(null);
     const [curConvIndex, setCurConvIndex] = useState(-1);
+    const [curConvUsers, setCurConvUsers] = useState([]);
     const [message, setMessage] = useState("");
 
     useEffect(() => {
@@ -34,6 +36,19 @@ export default function Conversations() {
         const messagesDiv = document.getElementsByClassName("current-messages")[0];
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         setMessage("");
+        
+        async function retrieveUserNames() {
+            const userNames = [];
+            for (const email of curConv.users) {
+                const res = await retrieveUserByEmail(email);
+                const user = await res.json();
+                userNames.push(user.name);
+            }
+            setCurConvUsers([...userNames]);
+        }
+        if (curConv) {
+            retrieveUserNames();
+        }
     }, [curConv]);
 
     useEffect(() => {
@@ -45,7 +60,12 @@ export default function Conversations() {
     function updateConvs() {
         fetch(`${import.meta.env.VITE_BACKEND_URL}/conv`, { credentials: "include" })
             .then((res) => res.json())
-            .then((data) => setConvs(data));
+            .then((data) => {
+                setConvs(data);
+                if (curConvIndex >= data.length) {
+                    setCurConvIndex(data.length - 1);
+                }
+            });
     }
 
     function handleCreateClick() {
@@ -134,6 +154,13 @@ export default function Conversations() {
                         <button onClick={sendMessage}>Send</button>
                     </div>
                 }
+            </div>
+            <div className="conversation-users-list">
+                {curConvUsers.length > 0 && curConvUsers.map((name, index) =>
+                    <div className="conversation-user" key={index}>
+                        <p>{name}</p>
+                    </div>
+                )}
             </div>
         </div>
     );
