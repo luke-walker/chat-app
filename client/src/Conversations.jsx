@@ -48,11 +48,15 @@ export default function Conversations() {
         }
         if (curConv) {
             retrieveUserNames();
+        } else {
+            setCurConvUsers([]);
         }
     }, [curConv]);
 
     useEffect(() => {
-        if (curConvIndex >= 0 && curConvIndex < convs.length) {
+        if (curConvIndex < 0) {
+            setCurConv(null);
+        } else if (curConvIndex < convs.length) {
             setCurConv(convs[curConvIndex]);
         }
     }, [curConvIndex]);
@@ -83,6 +87,7 @@ export default function Conversations() {
             },
             body: JSON.stringify({ name, users })
         });
+        updateConvs();
     }
 
     async function handleLeaveClick() {
@@ -90,6 +95,7 @@ export default function Conversations() {
             method: "POST",
             credentials: "include"
         });
+        updateConvs();
     }
 
     function handleConversationClick(index) {
@@ -156,7 +162,7 @@ export default function Conversations() {
                 }
             </div>
             <div className="conversation-users-list">
-                {curConvUsers.length > 0 && curConvUsers.map((name, index) =>
+                {curConvUsers.map((name, index) =>
                     <div className="conversation-user" key={index}>
                         <p>{name}</p>
                     </div>

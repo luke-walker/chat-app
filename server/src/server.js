@@ -76,10 +76,23 @@ io.on("connection", async (socket) => {
     }
 
     const email = socket.request.session.user.email;
-    const convs = await getConversationsByEmail(email);
-    const convIds = convs.map((conv) => conv._id.toString());
 
-    socket.join([email, ...convIds]);
+    async function refreshRooms() {
+        const convs = await getConversationsByEmail(email);
+        const convIds = convs.map((conv) => conv._id.toString());
+
+        for (const room of socket.rooms) {
+            socket.leave(room);
+        }
+        socket.join([email, ...convIds]);
+    }
+
+    refreshRooms();
+    socket.on("refreshRooms", refreshRooms);
+
+    socket.on("joinRoom", (room) => {
+        socket.join(room);
+    });
 
     socket.on("leaveRoom", (room) => {
         socket.leave(room);

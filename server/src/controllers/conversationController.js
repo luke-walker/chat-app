@@ -23,9 +23,10 @@ export async function createConversation(req, res) {
             messages: []
         };
 
-        await conversationModel.create(conv);
+        const newConv = await conversationModel.create(conv);
 
         for (const user of users) {
+            io.to(user).emit("joinRoom", newConv._id.toString());
             io.to(user).emit("updateConvs");
         }
 
